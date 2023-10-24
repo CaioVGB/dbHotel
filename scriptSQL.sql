@@ -40,7 +40,9 @@ insert into funcionarios(nomeFunc, login, senha, cargo) values ("Pamella Pereto"
 insert into funcionarios(nomeFunc, login, senha, cargo) values ("Breno Silva", "brenosilva", md5("123@senac"), "Contabilidade");
 insert into funcionarios(nomeFunc, login, senha, cargo) values ("Victoria Cardoso", "victoriacardoso", md5("123@senac"), "RH");
 insert into funcionarios(nomeFunc, login, senha) values ("Laura Lopes", "lauralopes", md5("123@senac"));
-insert into funcionarios(nomeFunc, login, senha) values ("Fellipe Coelho", "fellipe", md5("123@senac"));
+insert into funcionarios(nomeFunc, login, email, senha) values ("Fellipe Coelho", "fellipe", "fellipecoelho@gmail.com", md5("123@senac"));
+
+
 /*READ*/
 /*Ler/Buscar as informações da tabela funcionários */
 select * from funcionarios;
@@ -49,6 +51,82 @@ select * from funcionarios;
 /* Atualizar o campo login na tabela funcionários especificando o id */
 update funcionarios set login = 'fellipecoelho' where idFunc = 7;
 update funcionarios set cargo = 'Gerência' where idFunc = 4;
+update funcionarios set cargo = 'Gerência' where idFunc = 8;
+update funcionarios set cargo = 'Gerência' where idFunc = 3;
 
 /* Excluir a tabela do banco */
 drop table funcionarios;
+
+/*Buscar o ID e o nome do funcionario da tabela funcionarios ordenando o nome alfabeticamente (ascendente, A a Z) */
+select idFunc as ID_funcionario, nomeFunc as Nome_Funcionario from funcionarios order by nomeFunc asc;
+
+/*Buscar o ID eo nome do funcionario da tabela funcionarios ordenando o nome alfabeticamente (descendente, de Z a A) */
+select idFunc as ID_Funcionario, nomeFunc as Nome_Funcionario from funcionarios order by nomeFunc desc;
+
+/* Buscar cos campos ID com o apelido ID_Funcionario, nomeFunc com o apelido Nome_Funcionario e cargo com o apelido Cargo_Funcionario
+da tabela funcionarios ordenado de forma descendente de nulo e ordenado de forma ascendente o ID (do maior para o menor)
+<> ESTE SINAL SIGNIFICA DIFERENTE */
+select idFunc as ID_Funcionario, nomeFunc as Nome_Funcionario, cargo as
+Cargo_Funcionario from funcionarios where cargo <> 'null' order by
+idFunc desc;
+
+select idFunc as ID_Funcionario, nomeFunc as Nome_Funcionarios, cargo
+as Cargo_Funcionario from funcionarios order by idFunc desc;
+
+delete from funcionarios where idFunc = 7;
+
+create table Quartos (
+idQuarto int primary key auto_increment,
+andar varchar(10) not null,
+numeroQuarto varchar(10) not null,
+tipoQuarto varchar(50) not null,
+ocupacaoMax int not null,
+situacao char(3) not null,
+nome varchar(50) not null,
+descricao text,
+foto varchar (255) not null,
+preco decimal (10,2) not null,   
+cafeDaManha char (3) not null,
+tipoCama varchar (20),
+varanda char(3)
+
+);
+
+describe Quartos;
+
+insert into Quartos (andar, numeroQuarto, tipoQuarto, ocupacaoMax, situacao, nome, descricao, foto, preco, cafeDaManha, tipoCama, varanda)
+values ("5°", "500", "Quarto de Casal", "2", "nao", "Luxo",
+"Aceita Animal, Wifi Gratis, Restaurante, Bar no Hotel, Ar Condicionado, Estacionamento",
+"https://imgcy.trivago.com/c_lfill,d_dummy.jpeg,e_sharpen:60,f_auto,h_225,q_auto,w_225/hotelier-images/50/fa/3bd256afa5028bda05c53571c1e24d4442ef710f00b7bdde487eb497e0ae.jpeg",
+297.00, "sim", "king", "sim");
+
+insert into Quartos (andar, numeroQuarto, tipoQuarto, ocupacaoMax, situacao, nome, descricao, foto, preco, cafeDaManha, tipoCama, varanda) values ("4°", "405", "Quarto de Casal", "2", "nao", "Luxo", "Nao Aceita Animais, Wifi Gratis, Estacionamento, Restaurante, Ar Condicionado, Piscina","https://imgcy.trivago.com/c_lfill,d_dummy.jpeg,e_sharpen:60,f_auto,h_225,q_auto,w_225/hotelier-images/3e/bc/a4133ec083a75cabdc715acb70b1b89852af6e3d1d3abff5668d6c4c0f7c.jpeg",
+197.00, "sim", "king", "sim");
+
+select * from Quartos;
+
+select * from quartos where situacao = "nao" order by preco asc;
+
+select * from quartos where cafeDaManha = "sim" and situacao = "nao";
+
+select * from quartos where preco < 700.00 and situacao = "nao";
+
+
+create table clientes (
+idCliente int primary key auto_increment,
+nomeComplete varchar(100) not null,
+cpf char(14) not null unique,
+rg char(12) not null unique,
+email varchar(50) unique,
+celular varchar(20) not null,
+numeroCartao varchar(20) not null,
+nomeTitular varchar(100) not null,
+validade date,
+cvv char(3) not null,
+checkin datetime not null,
+checkout datetime not null,
+idQuarto int not null,
+foreign key (idQuartos) references quartos (idQuartos)
+);
+
+describe clientes;
