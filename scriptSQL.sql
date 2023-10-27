@@ -94,14 +94,16 @@ varanda char(3)
 
 describe Quartos;
 
-insert into Quartos (andar, numeroQuarto, tipoQuarto, ocupacaoMax, situacao, nome, descricao, foto, preco, cafeDaManha, tipoCama, varanda)
+insert into Quartos (andar, numeroQuarto, tipoQuarto, ocupacaoMax, situacao, nome, descricao, foto, preco, cafeDaManha, precoCafe, tipoCama, varanda)
 values ("5°", "500", "Quarto de Casal", "2", "nao", "Luxo",
 "Aceita Animal, Wifi Gratis, Restaurante, Bar no Hotel, Ar Condicionado, Estacionamento",
 "https://imgcy.trivago.com/c_lfill,d_dummy.jpeg,e_sharpen:60,f_auto,h_225,q_auto,w_225/hotelier-images/50/fa/3bd256afa5028bda05c53571c1e24d4442ef710f00b7bdde487eb497e0ae.jpeg",
-297.00, "sim", "king", "sim");
+297.00, "sim", 60.00, "king", "sim");
 
-insert into Quartos (andar, numeroQuarto, tipoQuarto, ocupacaoMax, situacao, nome, descricao, foto, preco, cafeDaManha, tipoCama, varanda) values ("4°", "405", "Quarto de Casal", "2", "nao", "Luxo", "Nao Aceita Animais, Wifi Gratis, Estacionamento, Restaurante, Ar Condicionado, Piscina","https://imgcy.trivago.com/c_lfill,d_dummy.jpeg,e_sharpen:60,f_auto,h_225,q_auto,w_225/hotelier-images/3e/bc/a4133ec083a75cabdc715acb70b1b89852af6e3d1d3abff5668d6c4c0f7c.jpeg",
-197.00, "sim", "king", "sim");
+insert into Quartos (andar, numeroQuarto, tipoQuarto, ocupacaoMax, situacao, nome, descricao, foto, preco, cafeDaManha, precoCafe, tipoCama, varanda) values
+("4°", "405", "Quarto de Casal", "2", "nao", "Luxo", "Nao Aceita Animais, Wifi Gratis, Estacionamento, Restaurante, Ar Condicionado, Piscina",
+"https://imgcy.trivago.com/c_lfill,d_dummy.jpeg,e_sharpen:60,f_auto,h_225,q_auto,w_225/hotelier-images/3e/bc/a4133ec083a75cabdc715acb70b1b89852af6e3d1d3abff5668d6c4c0f7c.jpeg",
+197.00, "sim", 60.00, "king", "sim");
 
 select * from Quartos;
 
@@ -118,15 +120,88 @@ nomeComplete varchar(100) not null,
 cpf char(14) not null unique,
 rg char(12) not null unique,
 email varchar(50) unique,
-celular varchar(20) not null,
-numeroCartao varchar(20) not null,
-nomeTitular varchar(100) not null,
-validade date,
-cvv char(3) not null,
-checkin datetime not null,
-checkout datetime not null,
-idQuarto int not null,
-foreign key (idQuartos) references quartos (idQuartos)
+celular varchar(20) not null
 );
 
 describe clientes;
+
+insert into clientes (nomeComplete, cpf, rg, email,celular) values ("José de Assis", "829.942.570-09", "48.353.888-7", "josedeassis@gmail.com", "(96) 99338-2803");
+
+insert into clientes (nomeComplete, cpf, rg, email, celular) values ("Pedroca Mussolini", "111.222.333-04", "11.222.333-4", "pedromussolini@gmail.com", "(96) 99999-9999");
+
+select * from clientes;
+
+drop table clientes;
+
+/* Buscar TODAS AS INFORMAÇÕES da tabela quartos que está vinculada à tabela clientes pelo campo idQuarto */
+
+select *
+from Quartos inner join clientes
+on Quartos.idQuarto = clientes.idQuarto;
+
+/* Buscar o nome completo e o celular do cliente que alugou o quarto de número 505, pois a tabela está vinculada à tabela clientes pelo idQuarto */
+select clientes.nomeComplete,
+clientes.celular
+from Quartos inner join clientes
+on Quartos.idQuarto = clientes.idQuarto where numeroQuarto = 500;
+
+/*Buscar o nome completo e data/horário do checkout do cliente que alugou o quarto de número 500 */
+select clientes.nomeComplete as Nome, date_format(clientes.checkout, '%d/%m/%Y - %H:%i') as Checkout from Quartos inner join clientes on Quartos.idQuarto = clientes.idQuarto where numeroQuarto = 500;
+
+drop table clientes;
+
+/*dataPedido timesatamp default current_timestamp significa que a data do pedido sera do pedido sera o mesmo sistema, ou seja, a data atual
+statusPedido significa que a situacao do pedido sera uma das seguintes opcoes: Pendente, Finalizado, Cancelado */
+create table pedido (
+idpedido int primary key auto_increment,
+datapedido timestamp default current_timestamp,
+statuspedido enum("Pendente", "Finalizado", "Cancelado") not null,
+idCliente int not null,
+foreign key (idCliente) references clientes(idCliente)
+);
+
+
+/*Abertura de pedidos */
+insert into pedido (statuspedido, idCliente) value ("Pendente", 1);
+insert into pedido (statuspedido, idCliente) value ("Finalizado", 2);
+
+select * from pedido;
+
+
+create table reservas (
+idreserva int primary key auto_increment,
+idpedido int not null,
+idQuarto int not null,
+foreign key (idpedido) references pedido(idpedido),
+foreign key (idQuarto) references Quartos(idQuarto)
+);
+
+describe pedido;
+
+drop table reservas;
+
+select * from pedido inner join clientes on pedido.idCliente = clientes.idClientes;
+
+select * from pedido;
+
+select * from reservas;
+
+insert into reservas (idpedido, idQuarto, checkin, checkout) values(1, 1, "2023-11-02 14:00:00", "2023-11-05 12:00:00");
+
+insert into reservas (idpedido, idQuarto, checkin, checkout) values(1, 2, "2023-11-02 14:00:00", "2023-11-05 12:00:00");
+
+alter table revervas add column checkin datetime not null;
+
+alter table revervas add column checkout datetime not null;
+
+describe reservas;
+
+select * from reservas;
+
+select reservas.idreserva, pedido.idpedido, Quartos.idQuarto, Quartos.nome, Quartos.andar, Quartos.numeroQuarto from (reservas inner join pedido on reservas.idpedido = pedido.idpedido) inner join Quartos on reservas.idQuarto = Quartos.idQuarto;
+
+alter table Quartos add column precoCafe decimal(10,2) after cafeDaManha;
+
+alter table Quartos drop column precoCafe;
+
+update Quartos set precoCafe = 60.00 where idQuarto = 1;
